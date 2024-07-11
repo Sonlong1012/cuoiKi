@@ -114,3 +114,158 @@ void showOledInfo() {
 
   oled.display();
 }
+
+// #include <SSD1306.h>
+// #define SDA_PIN D2
+// #define SCL_PIN D3
+// SSD1306 oled(0x3c, SDA_PIN, SCL_PIN);
+// #include <ESP8266WiFi.h>
+// #include <FirebaseESP8266.h>
+// FirebaseConfig config;
+// FirebaseAuth auth;
+// FirebaseData fbdo;
+// #define DB_URL "https://long-bc130-default-rtdb.asia-southeast1.firebasedatabase.app/"
+// #define DB_SECRET "Gj0w1L8JKWJQmHzltn9lzsxxOVJZdbjLhxFIUi7c"
+// #define AP_SSID "SonLong_5G"
+// #define AP_PASSWORD "long6485"
+// int const SENSOR_MH_D_PIN = D4;
+// int const SENSOR_MH_A_PIN = A0;
+// int const T_RELAY_PIN = D5;
+
+// int const TIME_TO_GET_SAMPLE = 5000; //5s
+// int const SAMPLE_TIME = 500; //0.5 s
+// int const LED_PIN = 13;
+
+// int const LED_BLUE_PIN = D7;
+// int const LED_YEWLOW_PIN = D6;
+// int const LED_RED_PIN = D8;
+
+// int const TREE_WATER_LEVEL_HIGH = 600;
+// int const TREE_WATER_LEVEL_LOW = 300;
+
+// int sensorMHValue = 0;//store sensor value
+
+// int bumpStatus = 0;
+// int waterStatus = 0;// -1: less water, 0: enough water, +1 : more water
+
+// void setup() {
+//   initOled();
+//   Serial.begin(115200);
+//   pinMode(SENSOR_MH_D_PIN, INPUT);
+//   pinMode(T_RELAY_PIN, OUTPUT);
+
+//   pinMode(LED_PIN, OUTPUT);
+//   pinMode(LED_BLUE_PIN, OUTPUT);
+//   pinMode(LED_YEWLOW_PIN, OUTPUT);
+//   pinMode(LED_RED_PIN, OUTPUT);
+// }
+
+// void loop() {
+//   // process and checking to watering
+//   wateringProcess();
+
+//   // Send information to serial port
+//   //printToSerialPort();
+
+//   //show the led status
+//   showLedInfo();
+// }
+
+// void wateringProcess(){
+//   int sensorStatus = digitalRead(SENSOR_MH_D_PIN);
+//   int sensorValue = getSensorSampleValue();
+//   if(sensorStatus == 0){
+//     if(sensorValue > TREE_WATER_LEVEL_HIGH){
+//       digitalWrite(T_RELAY_PIN, HIGH);
+//       bumpStatus = 1;
+//       waterStatus = -1;
+//     } else if(sensorValue < TREE_WATER_LEVEL_LOW){
+//       digitalWrite(T_RELAY_PIN, LOW);
+//       bumpStatus = 0;
+//       waterStatus = +1;
+//     } else {
+//       digitalWrite(T_RELAY_PIN, LOW);
+//       bumpStatus = 0;
+//       waterStatus = 0;
+//     }
+//   } else {
+//     digitalWrite(T_RELAY_PIN, HIGH);
+//     bumpStatus = 1;
+//     waterStatus = -1;
+//   }
+// }
+
+// int getSensorSampleValue(){
+//   int value = 0;
+//   int t = TIME_TO_GET_SAMPLE / SAMPLE_TIME;
+//   int total = 0;
+//   for(int i = 0; i < t; i++){
+//     total += analogRead(SENSOR_MH_A_PIN);
+//     delay(t);
+//   }
+//   return total / t;
+// }
+
+// void printToSerialPort(){
+//   Serial.print("Bumper enable: "); Serial.println(bumpStatus);
+//   Serial.print("Sensor value: "); Serial.println(sensorMHValue);
+// }
+
+// void showLedInfo(){
+//   if(bumpStatus == 1){
+//     digitalWrite(LED_YEWLOW_PIN, HIGH);
+//   } else {
+//     digitalWrite(LED_YEWLOW_PIN, LOW);
+//   }
+
+//   if(waterStatus == 0){
+//     digitalWrite(LED_RED_PIN, LOW);
+//     digitalWrite(LED_BLUE_PIN, HIGH);
+//     printOled("OLED", "Tắt");
+//   } else {
+//     digitalWrite(LED_RED_PIN, HIGH);
+//     digitalWrite(LED_BLUE_PIN, LOW);
+//     printOled("OLED", "Bật");
+//   }
+// }
+
+// void initOled(){
+//   oled.init();
+//   oled.flipScreenVertically();
+// }
+
+// void printOled(String line1, String line2) {
+//   oled.clear();
+//   oled.setTextAlignment(TEXT_ALIGN_LEFT);
+//   oled.setFont(ArialMT_Plain_24);
+//   oled.drawString(0, 0, line1);
+//   oled.drawString(0, 36, line2);
+//   oled.display();
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

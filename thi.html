@@ -1,0 +1,102 @@
+<head>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      td {
+        padding: 10px;
+        text-align: center;
+      }
+      #redLed, #greenLed {
+        width: 20px;
+        height: 20px;
+      }
+      #redLed {
+        background-color: red;
+      }
+      #greenLed {
+        background-color: green;
+      }
+      .relay-control {
+        font-size: 30px;
+        font-weight: bold;
+      }
+      .toggle-button {
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        position: relative;
+        cursor: pointer;
+        border-radius: 17px;
+        background-color: #ccc;
+        transition: background-color 0.3s;
+      }
+      .toggle-button:before {
+        content: '';
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: white;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.3s;
+      }
+      input[type="checkbox"] {
+        visibility: hidden;
+      }
+      input[type="checkbox"]:checked + .toggle-button {
+        background-color: #66bb6a;
+      }
+      input[type="checkbox"]:checked + .toggle-button:before {
+        transform: translateX(26px);
+      }
+    </style>
+  </head>
+  <body onload="page_Load()">
+    <table cellspacing="10">
+      <tr>
+        <td colspan="3"><strong class="relay-control">Relay Control</strong></td>
+      </tr>
+      <tr>
+        <td>Value:</td>
+        <td><span id="lblValue">Tắt</span></td>
+        <td>
+          <label for="toggleSwitch" class="toggle-label">
+            <input type="checkbox" id="toggleSwitch" onchange="toggleRelay()">
+            <span class="toggle-button"></span>
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td>Red LED:</td>
+        <td><div id="redLed"></div></td>
+      </tr>
+      <tr>
+        <td>Green LED:</td>
+        <td><div id="greenLed"></div></td>
+      </tr>
+    </table>
+  
+    <script>
+      function toggleRelay() {
+        var lblValue = document.getElementById('lblValue');
+        var toggleSwitch = document.getElementById('toggleSwitch');
+  
+        if (toggleSwitch.checked) {
+          lblValue.textContent = 'Bật';
+          // Thực hiện hành động khi bật (ví dụ: gửi yêu cầu bật relay)
+        } else {
+          lblValue.textContent = 'Tắt';
+          // Thực hiện hành động khi tắt (ví dụ: gửi yêu cầu tắt relay)
+        }
+      }
+    </script>
+  </body>

@@ -19,7 +19,10 @@ int const LED_RED_PIN = D8;
 int const LED_YELLOW_PIN = D6;
 int const LED_BLUE_PIN = D7;
 int const SOIL_SENSOR_PIN = A0; // Chân kết nối cảm biến độ ẩm đất
+int const SOIL_DRY_THRESHOLD = 750; // > ngưỡng này: đất khô
+int const SOIL_WET_THRESHOLD = 500; // < ngưỡng này: đất ẩm
 int bumpStatus = 0;
+int autoMode = 1; // 1: tự động, 0: thủ công từ web
 
 void setup() {
   Serial.begin(115200);
@@ -39,9 +42,9 @@ void setup() {
 }
 
 void loop() {
-  checkRelayStatusFromFirebase(); // Kiểm tra trạng thái relay từ Firebase
-  checkSoilMoistureStatus(); // Kiểm tra trạng thái độ ẩm đất
+  handleRelayControlMode(); // Điều khiển relay theo AutoMode/RelayStatus
   showOledInfo(); // Hiển thị trạng thái relay và độ ẩm lên màn hình OLED
+  delay(1000);
 }
 
 void initWifi() {
@@ -65,39 +68,51 @@ void initFirebase() {
   Firebase.reconnectNetwork(true);
 }
 
-void checkRelayStatusFromFirebase() {
-  if (Firebase.ready()) {
-    if (Firebase.getInt(fbdo, "RelayStatus")) {
-      int relayStatus = fbdo.intData();
-      if (relayStatus == 1) {
-        digitalWrite(T_RELAY_PIN, HIGH); // Bật relay
-        digitalWrite(LED_RED_PIN, HIGH); // Đèn đỏ sáng
-        digitalWrite(LED_YELLOW_PIN, HIGH); // Đèn vàng sáng
-        digitalWrite(LED_BLUE_PIN, LOW); // Đèn xanh tắt
-        bumpStatus = 1;
-      } else {
-        digitalWrite(T_RELAY_PIN, LOW);  // Tắt relay
-        digitalWrite(LED_RED_PIN, LOW); // Đèn đỏ tắt
-        digitalWrite(LED_YELLOW_PIN, LOW); // Đèn vàng tắt
-        digitalWrite(LED_BLUE_PIN, HIGH); // Đèn xanh sáng
-        bumpStatus = 0;
-      }
-      Serial.println("Relay status from Firebase: " + String(relayStatus));
-    } else {
-      Serial.println("Failed to get relay status from Firebase");
-    }
-  }
+void applyRelayOutput() {
+  digitalWrite(T_RELAY_PIN, bumpStatus == 1 ? HIGH : LOW);
+  digitalWrite(LED_RED_PIN, bumpStatus == 1 ? HIGH : LOW);    // Đèn đỏ = bật
+  digitalWrite(LED_YELLOW_PIN, bumpStatus == 1 ? HIGH : LOW); // Đèn vàng phụ trạng thái bơm
+  digitalWrite(LED_BLUE_PIN, bumpStatus == 1 ? LOW : HIGH);   // Đèn xanh = tắt
 }
 
-void checkSoilMoistureStatus() {
+void handleRelayControlMode() {
   int soilMoistureValue = analogRead(SOIL_SENSOR_PIN);
-  if (soilMoistureValue < 500) {
-    Serial.println("Soil is wet");
-  } else if (soilMoistureValue > 750) {
-    Serial.println("Soil is dry");
+
+  if (Firebase.ready()) {
+    // Đọc cờ chế độ từ web: 1 tự động, 0 thủ công
+    if (Firebase.getInt(fbdo, "AutoMode")) {
+      autoMode = fbdo.intData() == 1 ? 1 : 0;
+    }
+
+    if (autoMode == 1) {
+      // Đất khô -> bật bơm, đất ẩm -> tắt bơm.
+      // Khoảng giữa giữ trạng thái trước đó để tránh nhấp nháy relay.
+      if (soilMoistureValue > SOIL_DRY_THRESHOLD) {
+        bumpStatus = 1;
+      } else if (soilMoistureValue < SOIL_WET_THRESHOLD) {
+        bumpStatus = 0;
+      }
+    } else {
+      // Chế độ thủ công: lấy RelayStatus từ web
+      if (Firebase.getInt(fbdo, "RelayStatus")) {
+        bumpStatus = fbdo.intData() == 1 ? 1 : 0;
+      }
+    }
+
+    applyRelayOutput();
+    Firebase.setInt(fbdo, "RelayStatus", bumpStatus);
+    Firebase.setInt(fbdo, "SoilMoisture", soilMoistureValue);
+    Firebase.setInt(fbdo, "AutoMode", autoMode);
   } else {
-    Serial.println("Soil moisture is normal");
+    // Mất mạng/Firebase: giữ trạng thái gần nhất đã tính và xuất ra relay
+    applyRelayOutput();
   }
+
+  Serial.println(
+    "Mode: " + String(autoMode == 1 ? "AUTO" : "MANUAL") +
+    " | Soil: " + String(soilMoistureValue) +
+    " | Relay: " + String(bumpStatus == 1 ? "ON" : "OFF")
+  );
 }
 
 void showOledInfo() {
